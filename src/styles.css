@@ -34,6 +34,7 @@ h1 { font-size: 1.4rem; }
 h2 { font-size: 1.05rem; }
 
 .stack, .budget-label { display: grid; gap: 0.55rem; }
+.compact-stack { margin-bottom: 0.65rem; }
 
 label { font-size: 0.92rem; font-weight: 600; }
 
@@ -61,12 +62,58 @@ button, .import-btn {
   font-weight: 700;
 }
 
+.allocation-summary {
+  margin: 0 0 0.55rem;
+  font-size: 0.88rem;
+  font-weight: 600;
+}
+
+.allocation-summary.good { color: #166534; }
+.allocation-summary.warn { color: #a16207; }
+.allocation-summary.bad { color: #b91c1c; }
+
+.category-totals {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.55rem;
+}
+
+.category-totals li {
+  display: grid;
+  gap: 0.45rem;
+  background: #f8fafc;
+  border-radius: 10px;
+  padding: 0.65rem;
+}
+
+.category-stats {
+  font-size: 0.82rem;
+  color: #475569;
+}
+
+.category-controls {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.55rem;
+  align-items: center;
+}
+
+.allocation-input {
+  padding: 0.45rem 0.55rem;
+  font-size: 0.92rem;
+}
+
 .transactions {
   list-style: none;
   margin: 0;
   padding: 0;
   display: grid;
   gap: 0.55rem;
+  max-height: calc((4.2rem * 5) + (0.55rem * 4));
+  overflow-y: auto;
+  padding-right: 0.2rem;
 }
 
 .transactions li {
@@ -89,6 +136,17 @@ button, .import-btn {
   width: auto;
   padding: 0.42rem 0.72rem;
   background: #dc2626;
+}
+
+
+.danger-btn {
+  margin-top: 0.7rem;
+  background: #b91c1c;
+}
+
+.danger-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
 }
 
 .empty {
