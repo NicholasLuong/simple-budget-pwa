@@ -2,57 +2,53 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Simple Budget PWA</title>
-    <meta name="description" content="Simple Budget PWA deployed on GitHub Pages" />
-    <style>
-      :root {
-        color-scheme: light dark;
-        font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
-      }
-
-      body {
-        margin: 0;
-        min-height: 100dvh;
-        display: grid;
-        place-items: center;
-        background: linear-gradient(145deg, #0f172a, #1e293b);
-      }
-
-      main {
-        width: min(680px, 92vw);
-        background: rgba(255, 255, 255, 0.08);
-        border: 1px solid rgba(255, 255, 255, 0.12);
-        border-radius: 16px;
-        padding: 2rem;
-        color: #f8fafc;
-        backdrop-filter: blur(6px);
-      }
-
-      h1 {
-        margin-top: 0;
-        font-size: clamp(1.5rem, 4vw, 2.4rem);
-      }
-
-      p {
-        line-height: 1.6;
-        margin-bottom: 0;
-      }
-
-      code {
-        background: rgba(255, 255, 255, 0.14);
-        padding: 0.15rem 0.35rem;
-        border-radius: 6px;
-      }
-    </style>
+    <meta name="description" content="Track monthly budget and expenses offline." />
+    <link rel="manifest" href="./manifest.webmanifest" />
+    <link rel="stylesheet" href="./src/styles.css" />
   </head>
   <body>
-    <main>
-      <h1>Simple Budget PWA</h1>
-      <p>
-        GitHub Pages deployment is configured. Push to <code>main</code> and GitHub Actions
-        will publish this site.
-      </p>
+    <main class="app">
+      <section class="card">
+        <h1>Simple Budget PWA</h1>
+        <label class="budget-label" for="budgetInput">
+          Monthly budget
+          <input id="budgetInput" type="number" min="0" step="0.01" inputmode="decimal" />
+        </label>
+        <p id="remainingBudget" class="remaining" aria-live="polite"></p>
+      </section>
+
+      <section class="card">
+        <h2>Add transaction</h2>
+        <form id="transactionForm" class="stack">
+          <label for="amountInput">
+            Amount
+            <input id="amountInput" type="number" min="0" step="0.01" inputmode="decimal" required />
+          </label>
+          <label for="categoryInput">
+            Category / note
+            <input id="categoryInput" type="text" maxlength="80" required />
+          </label>
+          <button type="submit">Add</button>
+        </form>
+      </section>
+
+      <section class="card">
+        <h2>Transactions</h2>
+        <ul id="transactionList" class="transactions"></ul>
+      </section>
+
+      <section class="card">
+        <h2>Backup</h2>
+        <div class="tools">
+          <button id="exportBtn" type="button">Export JSON</button>
+          <label class="import-btn" for="importInput">Import JSON</label>
+          <input id="importInput" type="file" accept="application/json" hidden />
+        </div>
+      </section>
     </main>
+
+    <script type="module" src="./src/main.js"></script>
   </body>
 </html>
