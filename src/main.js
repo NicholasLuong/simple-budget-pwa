@@ -8,16 +8,22 @@ db.version(1).stores({
 
 const DEFAULT_BUDGET = 2000;
 
+const overviewTabBtn = document.getElementById('overviewTabBtn');
+const settingsTabBtn = document.getElementById('settingsTabBtn');
+const overviewPanel = document.getElementById('overviewPanel');
+const settingsPanel = document.getElementById('settingsPanel');
+
 const budgetInput = document.getElementById('budgetInput');
 const remainingBudgetEl = document.getElementById('remainingBudget');
 const transactionForm = document.getElementById('transactionForm');
 const amountInput = document.getElementById('amountInput');
 const categoryInput = document.getElementById('categoryInput');
+const categorySuggestions = document.getElementById('categorySuggestions');
 const transactionList = document.getElementById('transactionList');
 const categoryTotalsList = document.getElementById('categoryTotalsList');
 const categoryAllocationForm = document.getElementById('categoryAllocationForm');
-const allocationCategoryInput = document.getElementById('allocationCategoryInput');
-const allocationAmountInput = document.getElementById('allocationAmountInput');
+const allocationRowsEl = document.getElementById('allocationRows');
+const addAllocationRowBtn = document.getElementById('addAllocationRowBtn');
 const allocationSummaryEl = document.getElementById('allocationSummary');
 const exportBtn = document.getElementById('exportBtn');
 const importInput = document.getElementById('importInput');
@@ -30,6 +36,49 @@ function sanitizeAmount(value) {
 
 function normalizeCategory(value) {
   return value.trim();
+}
+
+function setActiveTab(tabName) {
+  const isOverview = tabName === 'overview';
+  overviewPanel.hidden = !isOverview;
+  settingsPanel.hidden = isOverview;
+  overviewTabBtn.classList.toggle('active', isOverview);
+  settingsTabBtn.classList.toggle('active', !isOverview);
+}
+
+function createAllocationRow(category = '', amount = '') {
+  const row = document.createElement('div');
+  row.className = 'allocation-row';
+
+  const categoryField = document.createElement('input');
+  categoryField.type = 'text';
+  categoryField.maxLength = 80;
+  categoryField.placeholder = 'Category (e.g. Groceries)';
+  categoryField.className = 'allocation-category-input';
+  categoryField.value = category;
+
+  const amountField = document.createElement('input');
+  amountField.type = 'number';
+  amountField.min = '0';
+  amountField.step = '0.01';
+  amountField.inputMode = 'decimal';
+  amountField.placeholder = 'Allocated amount';
+  amountField.className = 'allocation-row-amount-input';
+  amountField.value = amount;
+
+  const removeBtn = document.createElement('button');
+  removeBtn.type = 'button';
+  removeBtn.textContent = 'Remove';
+  removeBtn.className = 'delete-btn';
+  removeBtn.addEventListener('click', () => {
+    row.remove();
+    if (!allocationRowsEl.children.length) {
+      allocationRowsEl.appendChild(createAllocationRow());
+    }
+  });
+
+  row.append(categoryField, amountField, removeBtn);
+  return row;
 }
 
 async function getBudget() {
@@ -97,24 +146,34 @@ function renderAllocationSummary(budget, totalAllocated) {
   allocationSummaryEl.className = 'allocation-summary bad';
 }
 
-async function saveCategoryAllocation(category, amount) {
-  const normalizedCategory = normalizeCategory(category);
-  if (!normalizedCategory) return;
+function renderAllocationEditor(allocations) {
+  allocationRowsEl.innerHTML = '';
+  const entries = Object.entries(allocations);
 
-  const allocations = await getCategoryAllocations();
-  allocations[normalizedCategory] = sanitizeAmount(amount);
-  await setCategoryAllocations(allocations);
+  if (!entries.length) {
+    allocationRowsEl.appendChild(createAllocationRow());
+    return;
+  }
+
+  entries
+    .sort(([nameA], [nameB]) => nameA.localeCompare(nameB))
+    .forEach(([category, amount]) => {
+      allocationRowsEl.appendChild(createAllocationRow(category, String(amount)));
+    });
 }
 
-async function removeCategoryAllocation(category) {
-  const normalizedCategory = normalizeCategory(category);
-  if (!normalizedCategory) return;
+function readAllocationEditorRows() {
+  const allocations = {};
+  const rows = allocationRowsEl.querySelectorAll('.allocation-row');
 
-  const allocations = await getCategoryAllocations();
-  if (!Object.hasOwn(allocations, normalizedCategory)) return;
+  rows.forEach((row) => {
+    const category = normalizeCategory(row.querySelector('.allocation-category-input')?.value || '');
+    const amount = row.querySelector('.allocation-row-amount-input')?.value || '';
+    if (!category) return;
+    allocations[category] = sanitizeAmount(amount);
+  });
 
-  delete allocations[normalizedCategory];
-  await setCategoryAllocations(allocations);
+  return allocations;
 }
 
 async function render() {
@@ -134,6 +193,13 @@ async function render() {
 
   transactionList.innerHTML = '';
   categoryTotalsList.innerHTML = '';
+  categorySuggestions.innerHTML = '';
+
+  Object.keys(allocations).sort().forEach((category) => {
+    const option = document.createElement('option');
+    option.value = category;
+    categorySuggestions.appendChild(option);
+  });
 
   const spendingByCategory = transactions.reduce((totals, transaction) => {
     const key = normalizeCategory(transaction.category) || 'Uncategorized';
@@ -154,7 +220,7 @@ async function render() {
   if (!categoryRows.length) {
     const emptyCategory = document.createElement('li');
     emptyCategory.className = 'empty';
-    emptyCategory.textContent = 'No category spending yet.';
+    emptyCategory.textContent = 'No category spending yet. Open Setup & settings to add categories.';
     categoryTotalsList.appendChild(emptyCategory);
   } else {
     categoryRows
@@ -169,34 +235,7 @@ async function render() {
         stats.className = 'category-stats';
         stats.textContent = `Spent ${formatMoney(row.spent)} / Allocated ${formatMoney(row.allocated)} / Available ${formatMoney(row.available)}`;
 
-        const controls = document.createElement('div');
-        controls.className = 'category-controls';
-
-        const allocationInput = document.createElement('input');
-        allocationInput.type = 'number';
-        allocationInput.min = '0';
-        allocationInput.step = '0.01';
-        allocationInput.inputMode = 'decimal';
-        allocationInput.className = 'allocation-input';
-        allocationInput.value = String(row.allocated);
-        allocationInput.setAttribute('aria-label', `Allocation for ${row.category}`);
-
-        allocationInput.addEventListener('change', async () => {
-          await saveCategoryAllocation(row.category, allocationInput.value);
-          await render();
-        });
-
-        const removeBtn = document.createElement('button');
-        removeBtn.type = 'button';
-        removeBtn.className = 'delete-btn';
-        removeBtn.textContent = 'Remove';
-        removeBtn.addEventListener('click', async () => {
-          await removeCategoryAllocation(row.category);
-          await render();
-        });
-
-        controls.append(allocationInput, removeBtn);
-        li.append(title, stats, controls);
+        li.append(title, stats);
         categoryTotalsList.appendChild(li);
       });
   }
@@ -208,30 +247,42 @@ async function render() {
     empty.className = 'empty';
     empty.textContent = 'No transactions yet.';
     transactionList.appendChild(empty);
-    return;
+  } else {
+    transactions.forEach((transaction) => {
+      const li = document.createElement('li');
+      li.innerHTML = `
+        <strong>${transaction.category}</strong>
+        <span>${formatMoney(transaction.amount)}</span>
+        <span class="meta">${formatDate(transaction.timestamp)}</span>
+      `;
+
+      const deleteBtn = document.createElement('button');
+      deleteBtn.className = 'delete-btn';
+      deleteBtn.type = 'button';
+      deleteBtn.textContent = 'Delete';
+      deleteBtn.addEventListener('click', async () => {
+        await db.transactions.delete(transaction.id);
+        await render();
+      });
+
+      li.appendChild(deleteBtn);
+      transactionList.appendChild(li);
+    });
   }
 
-  transactions.forEach((transaction) => {
-    const li = document.createElement('li');
-    li.innerHTML = `
-      <strong>${transaction.category}</strong>
-      <span>${formatMoney(transaction.amount)}</span>
-      <span class="meta">${formatDate(transaction.timestamp)}</span>
-    `;
+  renderAllocationEditor(allocations);
 
-    const deleteBtn = document.createElement('button');
-    deleteBtn.className = 'delete-btn';
-    deleteBtn.type = 'button';
-    deleteBtn.textContent = 'Delete';
-    deleteBtn.addEventListener('click', async () => {
-      await db.transactions.delete(transaction.id);
-      await render();
-    });
-
-    li.appendChild(deleteBtn);
-    transactionList.appendChild(li);
-  });
+  if (!Object.keys(allocations).length) {
+    setActiveTab('settings');
+  }
 }
+
+overviewTabBtn.addEventListener('click', () => setActiveTab('overview'));
+settingsTabBtn.addEventListener('click', () => setActiveTab('settings'));
+
+addAllocationRowBtn.addEventListener('click', () => {
+  allocationRowsEl.appendChild(createAllocationRow());
+});
 
 budgetInput.addEventListener('change', async () => {
   const value = Number(budgetInput.value);
@@ -246,16 +297,10 @@ budgetInput.addEventListener('change', async () => {
 categoryAllocationForm.addEventListener('submit', async (event) => {
   event.preventDefault();
 
-  const category = normalizeCategory(allocationCategoryInput.value);
-  const amount = Number(allocationAmountInput.value);
-
-  if (!category || !Number.isFinite(amount) || amount < 0) {
-    return;
-  }
-
-  await saveCategoryAllocation(category, amount);
-  categoryAllocationForm.reset();
+  const allocations = readAllocationEditorRows();
+  await setCategoryAllocations(allocations);
   await render();
+  setActiveTab('overview');
 });
 
 transactionForm.addEventListener('submit', async (event) => {
@@ -331,4 +376,5 @@ if ('serviceWorker' in navigator) {
   });
 }
 
+setActiveTab('overview');
 render();

@@ -12,61 +12,72 @@
     <main class="app">
       <h1>Simple Budget PWA</h1>
 
-      <section class="card">
-        <h2>Add transaction</h2>
-        <form id="transactionForm" class="stack">
-          <label for="amountInput">
-            Amount
-            <input id="amountInput" type="number" min="0" step="0.01" inputmode="decimal" required />
-          </label>
-          <label for="categoryInput">
-            Category / note
-            <input id="categoryInput" type="text" maxlength="80" required />
-          </label>
-          <button type="submit">Add</button>
-        </form>
-      </section>
+      <nav class="tabs" aria-label="Main sections">
+        <button id="overviewTabBtn" type="button" class="tab-btn active" data-tab="overview">Overview</button>
+        <button id="settingsTabBtn" type="button" class="tab-btn" data-tab="settings">Setup & settings</button>
+      </nav>
 
-      <section class="card">
-        <h2>Category spending</h2>
-        <p id="allocationSummary" class="allocation-summary" aria-live="polite"></p>
-        <ul id="categoryTotalsList" class="category-totals"></ul>
-      </section>
+      <div id="overviewPanel" data-panel="overview">
+        <section class="card">
+          <h2>Add transaction</h2>
+          <form id="transactionForm" class="stack">
+            <label for="amountInput">
+              Amount
+              <input id="amountInput" type="number" min="0" step="0.01" inputmode="decimal" required />
+            </label>
+            <label for="categoryInput">
+              Category / note
+              <input id="categoryInput" list="categorySuggestions" type="text" maxlength="80" required />
+              <datalist id="categorySuggestions"></datalist>
+            </label>
+            <button type="submit">Add</button>
+          </form>
+        </section>
 
-      <section class="card">
-        <h2>Transactions</h2>
-        <ul id="transactionList" class="transactions"></ul>
-        <button id="clearTransactionsBtn" class="danger-btn" type="button">Clear all transactions</button>
-      </section>
+        <section class="card">
+          <h2>Category spending</h2>
+          <p id="allocationSummary" class="allocation-summary" aria-live="polite"></p>
+          <ul id="categoryTotalsList" class="category-totals"></ul>
+        </section>
 
-      <section class="card">
-        <h2>Settings</h2>
-        <label class="budget-label" for="budgetInput">
-          Monthly budget
-          <input id="budgetInput" type="number" min="0" step="0.01" inputmode="decimal" />
-        </label>
-        <p id="remainingBudget" class="remaining" aria-live="polite"></p>
-        <form id="categoryAllocationForm" class="stack compact-stack">
-          <label for="allocationCategoryInput">
-            Category
-            <input id="allocationCategoryInput" type="text" maxlength="80" placeholder="e.g. Groceries" required />
+        <section class="card">
+          <h2>Transactions</h2>
+          <ul id="transactionList" class="transactions"></ul>
+          <button id="clearTransactionsBtn" class="danger-btn" type="button">Clear all transactions</button>
+        </section>
+      </div>
+
+      <div id="settingsPanel" data-panel="settings" hidden>
+        <section class="card">
+          <h2>Budget setup</h2>
+          <label class="budget-label" for="budgetInput">
+            Monthly budget
+            <input id="budgetInput" type="number" min="0" step="0.01" inputmode="decimal" />
           </label>
-          <label for="allocationAmountInput">
-            Allocated amount
-            <input id="allocationAmountInput" type="number" min="0" step="0.01" inputmode="decimal" required />
-          </label>
-          <button type="submit">Set category allocation</button>
-        </form>
-      </section>
+          <p id="remainingBudget" class="remaining" aria-live="polite"></p>
+        </section>
 
-      <section class="card">
-        <h2>Backup</h2>
-        <div class="tools">
-          <button id="exportBtn" type="button">Export JSON</button>
-          <label class="import-btn" for="importInput">Import JSON</label>
-          <input id="importInput" type="file" accept="application/json" hidden />
-        </div>
-      </section>
+        <section class="card">
+          <h2>Category allocations</h2>
+          <p class="help-text">Set all categories here, then tap save once.</p>
+          <form id="categoryAllocationForm" class="stack">
+            <div id="allocationRows" class="allocation-rows"></div>
+            <div class="row-actions">
+              <button id="addAllocationRowBtn" type="button" class="secondary-btn">Add category row</button>
+              <button type="submit">Save all categories</button>
+            </div>
+          </form>
+        </section>
+
+        <section class="card">
+          <h2>Backup</h2>
+          <div class="tools">
+            <button id="exportBtn" type="button">Export JSON</button>
+            <label class="import-btn" for="importInput">Import JSON</label>
+            <input id="importInput" type="file" accept="application/json" hidden />
+          </div>
+        </section>
+      </div>
     </main>
 
     <script type="module" src="./src/main.js"></script>
