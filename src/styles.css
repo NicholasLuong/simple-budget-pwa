@@ -21,12 +21,29 @@ body {
   gap: 0.75rem;
 }
 
+.tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
+}
+
+.tab-btn {
+  background: #334155;
+  color: #cbd5e1;
+}
+
+.tab-btn.active {
+  background: #1d4ed8;
+  color: #fff;
+}
+
 .card {
   background: rgba(255, 255, 255, 0.86);
   border-radius: 16px;
   padding: 0.9rem;
   box-shadow: 0 4px 20px rgba(30, 41, 59, 0.08);
   backdrop-filter: blur(4px);
+  margin-bottom: 0.75rem;
 }
 
 h1, h2 { margin: 0 0 0.6rem; }
@@ -34,7 +51,6 @@ h1 { font-size: 1.4rem; }
 h2 { font-size: 1.05rem; }
 
 .stack, .budget-label { display: grid; gap: 0.55rem; }
-.compact-stack { margin-bottom: 0.65rem; }
 
 label { font-size: 0.92rem; font-weight: 600; }
 
@@ -52,6 +68,38 @@ button, .import-btn {
   border: none;
   font-weight: 700;
   text-align: center;
+}
+
+.secondary-btn {
+  background: #475569;
+}
+
+.row-actions {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.5rem;
+}
+
+.help-text {
+  margin: 0 0 0.65rem;
+  color: #475569;
+  font-size: 0.85rem;
+}
+
+.allocation-rows {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.allocation-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  gap: 0.45rem;
+  align-items: center;
+}
+
+.allocation-row input {
+  padding: 0.55rem;
 }
 
 .tools { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; }
@@ -93,18 +141,6 @@ button, .import-btn {
   color: #475569;
 }
 
-.category-controls {
-  display: grid;
-  grid-template-columns: 1fr auto;
-  gap: 0.55rem;
-  align-items: center;
-}
-
-.allocation-input {
-  padding: 0.45rem 0.55rem;
-  font-size: 0.92rem;
-}
-
 .transactions {
   list-style: none;
   margin: 0;
@@ -138,7 +174,6 @@ button, .import-btn {
   background: #dc2626;
 }
 
-
 .danger-btn {
   margin-top: 0.7rem;
   background: #b91c1c;
@@ -157,4 +192,5 @@ button, .import-btn {
 @media (max-width: 390px) {
   .app { padding-inline: 0.55rem; }
   .card { border-radius: 12px; }
+  .allocation-row { grid-template-columns: 1fr; }
 }
