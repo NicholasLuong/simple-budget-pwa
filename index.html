@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="theme-color" content="#101827" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <title>Budget Tracker</title>
+  </head>
+  <body>
+    <main class="app">
+      <header class="card">
+        <h1>Budget Tracker</h1>
+        <label class="budget-label">
+          Monthly Budget
+          <input id="budgetInput" type="number" inputmode="decimal" min="0" step="1" />
+        </label>
+        <p id="remainingBudget" class="remaining"></p>
+      </header>
+
+      <section class="card controls">
+        <h2>Add Transaction</h2>
+        <form id="transactionForm" class="stack">
+          <label>
+            Amount
+            <input id="amountInput" type="number" inputmode="decimal" step="0.01" min="0" required />
+          </label>
+          <label>
+            Category
+            <input id="categoryInput" type="text" maxlength="60" placeholder="Groceries" required />
+          </label>
+          <button type="submit">Add</button>
+        </form>
+      </section>
+
+      <section class="card tools">
+        <button id="exportBtn" type="button">Export JSON</button>
+        <label class="import-btn" for="importInput">Import JSON</label>
+        <input id="importInput" type="file" accept="application/json" hidden />
+      </section>
+
+      <section class="card">
+        <h2>Transactions</h2>
+        <ul id="transactionList" class="transactions"></ul>
+      </section>
+    </main>
+    <link rel="stylesheet" href="/src/styles.css" />
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
