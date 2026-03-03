@@ -27,9 +27,14 @@
               <input id="amountInput" type="number" min="0" step="0.01" inputmode="decimal" required />
             </label>
             <label for="categoryInput">
-              Category / note
-              <input id="categoryInput" list="categorySuggestions" type="text" maxlength="80" required />
-              <datalist id="categorySuggestions"></datalist>
+              Category
+              <select id="categoryInput" required>
+                <option value="" selected disabled>Select a category</option>
+              </select>
+            </label>
+            <label for="noteInput">
+              Merchant / note
+              <input id="noteInput" type="text" maxlength="120" placeholder="e.g. Trader Joe's" required />
             </label>
             <button type="submit">Add</button>
           </form>

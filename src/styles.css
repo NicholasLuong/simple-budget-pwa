@@ -71,7 +71,7 @@ h2 { font-size: 1.05rem; }
 
 label { font-size: 0.92rem; font-weight: 600; }
 
-input, button, .import-btn {
+input, select, button, .import-btn {
   width: 100%;
   border-radius: 12px;
   border: 1px solid rgba(148, 163, 184, 0.45);
@@ -80,7 +80,7 @@ input, button, .import-btn {
   transition: all 150ms ease;
 }
 
-input {
+input, select {
   background: rgba(255, 255, 255, 0.82);
   color: #0f172a;
 }
@@ -141,7 +141,7 @@ button:active, .import-btn:active {
   align-items: center;
 }
 
-.allocation-row input {
+.allocation-row input, select {
   padding: 0.55rem;
 }
 

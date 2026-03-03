@@ -18,8 +18,8 @@ const remainingBudgetEl = document.getElementById('remainingBudget');
 const transactionForm = document.getElementById('transactionForm');
 const amountInput = document.getElementById('amountInput');
 const categoryInput = document.getElementById('categoryInput');
-const categorySuggestions = document.getElementById('categorySuggestions');
 const transactionList = document.getElementById('transactionList');
+const noteInput = document.getElementById('noteInput');
 const categoryTotalsList = document.getElementById('categoryTotalsList');
 const categoryAllocationForm = document.getElementById('categoryAllocationForm');
 const allocationRowsEl = document.getElementById('allocationRows');
@@ -193,12 +193,19 @@ async function render() {
 
   transactionList.innerHTML = '';
   categoryTotalsList.innerHTML = '';
-  categorySuggestions.innerHTML = '';
+  categoryInput.innerHTML = '';
+  const defaultOption = document.createElement('option');
+  defaultOption.value = '';
+  defaultOption.textContent = 'Select a category';
+  defaultOption.disabled = true;
+  defaultOption.selected = true;
+  categoryInput.appendChild(defaultOption);
 
   Object.keys(allocations).sort().forEach((category) => {
     const option = document.createElement('option');
     option.value = category;
-    categorySuggestions.appendChild(option);
+    option.textContent = category;
+    categoryInput.appendChild(option);
   });
 
   const spendingByCategory = transactions.reduce((totals, transaction) => {
@@ -250,9 +257,11 @@ async function render() {
   } else {
     transactions.forEach((transaction) => {
       const li = document.createElement('li');
+      const note = (transaction.note || '').trim() || 'No note';
       li.innerHTML = `
-        <strong>${transaction.category}</strong>
+        <strong>${note}</strong>
         <span>${formatMoney(transaction.amount)}</span>
+        <span class="meta">Category: ${transaction.category}</span>
         <span class="meta">${formatDate(transaction.timestamp)}</span>
       `;
 
@@ -307,14 +316,16 @@ transactionForm.addEventListener('submit', async (event) => {
   event.preventDefault();
   const amount = Number(amountInput.value);
   const category = categoryInput.value.trim();
+  const note = noteInput.value.trim();
 
-  if (!Number.isFinite(amount) || amount < 0 || !category) {
+  if (!Number.isFinite(amount) || amount < 0 || !category || !note) {
     return;
   }
 
   await db.transactions.add({
     amount,
     category,
+    note,
     timestamp: Date.now()
   });
 
