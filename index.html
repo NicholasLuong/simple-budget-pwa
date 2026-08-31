@@ -2,90 +2,20 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Simple Budget PWA</title>
-    <meta name="description" content="Track monthly budget and expenses offline." />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#f7f7f5" />
+    <meta name="description" content="A calm, local-first monthly spending budget." />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="Budget Pocket" />
+    <meta name="format-detection" content="telephone=no" />
     <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
-    <link rel="manifest" href="./manifest.webmanifest" />
-    <link rel="stylesheet" href="./src/styles.css" />
+    <link rel="apple-touch-icon" sizes="180x180" href="./apple-touch-icon.png" />
+    <title>Budget Pocket</title>
   </head>
   <body>
-    <main class="app">
-      <h1>Simple Budget PWA</h1>
-
-      <nav class="tabs" aria-label="Main sections">
-        <button id="overviewTabBtn" type="button" class="tab-btn active" data-tab="overview">Overview</button>
-        <button id="settingsTabBtn" type="button" class="tab-btn" data-tab="settings">Setup & settings</button>
-      </nav>
-
-      <div id="overviewPanel" data-panel="overview">
-        <section class="card">
-          <h2>Add transaction</h2>
-          <form id="transactionForm" class="stack">
-            <label for="amountInput">
-              Amount
-              <input id="amountInput" type="number" min="0" step="0.01" inputmode="decimal" required />
-            </label>
-            <label for="categoryInput">
-              Category
-              <select id="categoryInput" required>
-                <option value="" selected disabled>Select a category</option>
-              </select>
-            </label>
-            <label for="noteInput">
-              Merchant / note
-              <input id="noteInput" type="text" maxlength="120" placeholder="e.g. Trader Joe's" required />
-            </label>
-            <button type="submit">Add</button>
-          </form>
-        </section>
-
-        <section class="card">
-          <h2>Category spending</h2>
-          <p id="allocationSummary" class="allocation-summary" aria-live="polite"></p>
-          <ul id="categoryTotalsList" class="category-totals"></ul>
-        </section>
-
-        <section class="card">
-          <h2>Transactions</h2>
-          <ul id="transactionList" class="transactions"></ul>
-          <button id="clearTransactionsBtn" class="danger-btn" type="button">Clear all transactions</button>
-        </section>
-      </div>
-
-      <div id="settingsPanel" data-panel="settings" hidden>
-        <section class="card">
-          <h2>Budget setup</h2>
-          <label class="budget-label" for="budgetInput">
-            Monthly budget
-            <input id="budgetInput" type="number" min="0" step="0.01" inputmode="decimal" />
-          </label>
-          <p id="remainingBudget" class="remaining" aria-live="polite"></p>
-        </section>
-
-        <section class="card">
-          <h2>Category allocations</h2>
-          <p class="help-text">Set all categories here, then tap save once.</p>
-          <form id="categoryAllocationForm" class="stack">
-            <div id="allocationRows" class="allocation-rows"></div>
-            <div class="row-actions">
-              <button id="addAllocationRowBtn" type="button" class="secondary-btn">Add category row</button>
-              <button type="submit">Save all categories</button>
-            </div>
-          </form>
-        </section>
-
-        <section class="card">
-          <h2>Backup</h2>
-          <div class="tools">
-            <button id="exportBtn" type="button">Export JSON</button>
-            <label class="import-btn" for="importInput">Import JSON</label>
-            <input id="importInput" type="file" accept="application/json" hidden />
-          </div>
-        </section>
-      </div>
-    </main>
-
-    <script type="module" src="./src/main.js"></script>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
