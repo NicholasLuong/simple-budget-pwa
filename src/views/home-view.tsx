@@ -1,4 +1,4 @@
-import { ArrowRight, Plus } from 'lucide-react';
+import { ArrowLeftRight, ArrowRight, Plus } from 'lucide-react';
 import type { BudgetTransaction, Category, MonthlyPlan } from '../db/database';
 import type { ReturnTypeOfSummary } from '../types';
 import { formatTransactionDate } from '../domain/months';
@@ -8,7 +8,7 @@ import { TransactionRow } from '../components/transaction-row';
 import { Button } from '../components/ui/button';
 import { Separator } from '../components/ui/separator';
 
-export function HomeView({ plan, summary, transactions, categories, onAdd, onEdit, onViewActivity }: {
+export function HomeView({ plan, summary, transactions, categories, onAdd, onEdit, onViewActivity, onMoveBudget }: {
   plan: MonthlyPlan;
   summary: ReturnTypeOfSummary;
   transactions: BudgetTransaction[];
@@ -16,6 +16,7 @@ export function HomeView({ plan, summary, transactions, categories, onAdd, onEdi
   onAdd: () => void;
   onEdit: (transaction: BudgetTransaction) => void;
   onViewActivity: () => void;
+  onMoveBudget: (categoryId?: string) => void;
 }) {
   const categoryMap = new Map(categories.map((category) => [category.id, category]));
   const recent = transactions.slice(0, 5);
@@ -25,9 +26,9 @@ export function HomeView({ plan, summary, transactions, categories, onAdd, onEdi
       <Button className="w-full sm:w-auto" size="lg" onClick={onAdd}><Plus />Record purchase</Button>
 
       <section aria-labelledby="category-heading">
-        <div className="section-heading"><div><p className="eyebrow">Your plan</p><h2 id="category-heading">Categories</h2></div><p className="text-sm text-muted-foreground">{summary.categorySummaries.length} active</p></div>
+        <div className="section-heading"><div><p className="eyebrow">Your plan</p><h2 id="category-heading">Categories</h2></div><Button variant="ghost" size="sm" onClick={() => onMoveBudget()}><ArrowLeftRight />Move budget</Button></div>
         <Separator />
-        <CategoryList categories={summary.categorySummaries} />
+        <CategoryList categories={summary.categorySummaries} onCover={onMoveBudget} />
       </section>
 
       <section aria-labelledby="recent-heading">

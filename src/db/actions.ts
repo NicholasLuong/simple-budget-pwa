@@ -25,6 +25,34 @@ export async function updatePlanBudget(month: string, budgetCents: number) {
   });
 }
 
+export async function transferAllocation(month: string, fromCategoryId: string, toCategoryId: string, amountCents: number) {
+  if (!Number.isSafeInteger(amountCents) || amountCents <= 0) throw new Error('Enter an amount greater than zero.');
+  if (!fromCategoryId || !toCategoryId || fromCategoryId === toCategoryId) throw new Error('Choose two different categories.');
+
+  await db.transaction('rw', db.monthlyPlans, db.transactions, async () => {
+    const plan = await db.monthlyPlans.get(month);
+    if (!plan) throw new Error('Budget month not found.');
+    const sourceAllocation = plan.allocations[fromCategoryId] ?? 0;
+    const sourceTransactions = await db.transactions.where('[month+categoryId]').equals([month, fromCategoryId]).toArray();
+    const sourceSpent = sourceTransactions.reduce((total, transaction) => total + transaction.amountCents, 0);
+    const sourceAvailable = sourceAllocation - sourceSpent;
+
+    if (amountCents > sourceAvailable) {
+      throw new Error('That category does not have enough available to move.');
+    }
+
+    await db.monthlyPlans.put({
+      ...plan,
+      allocations: {
+        ...plan.allocations,
+        [fromCategoryId]: sourceAllocation - amountCents,
+        [toCategoryId]: (plan.allocations[toCategoryId] ?? 0) + amountCents
+      },
+      updatedAt: Date.now()
+    });
+  });
+}
+
 export async function saveCategory(input: { name: string; allocationCents: number; color: string }, month: string, id?: string) {
   const plan = await getOrCreatePlan(month);
   if (id) {

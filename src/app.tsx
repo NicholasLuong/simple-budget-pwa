@@ -9,6 +9,7 @@ import { monthKey, shiftMonth } from './domain/months';
 import type { AppView } from './types';
 import { MonthNavigation } from './components/month-navigation';
 import { TransactionDialog } from './components/transaction-dialog';
+import { TransferBudgetDialog } from './components/transfer-budget-dialog';
 import { Button } from './components/ui/button';
 import { HomeView } from './views/home-view';
 
@@ -33,6 +34,7 @@ export function App() {
   const [month, setMonth] = useState(monthKey());
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingTransaction, setEditingTransaction] = useState<BudgetTransaction | null>(null);
+  const [transferTargetId, setTransferTargetId] = useState<string | null | undefined>(undefined);
   const [theme, setTheme] = useState<'light' | 'dark'>(getInitialTheme);
   const [online, setOnline] = useState(navigator.onLine);
 
@@ -82,6 +84,10 @@ export function App() {
     setDialogOpen(true);
   }
 
+  function openTransfer(categoryId?: string) {
+    setTransferTargetId(categoryId ?? null);
+  }
+
   if (!plan || !summary) {
     return <div className="grid min-h-dvh place-items-center bg-background text-sm text-muted-foreground">Loading your budget…</div>;
   }
@@ -104,7 +110,7 @@ export function App() {
 
       <main className="app-container pb-28 pt-7 sm:pb-10 sm:pt-10">
         <Suspense fallback={<p className="py-12 text-center text-sm text-muted-foreground">Loading view…</p>}>
-          {view === 'home' && <HomeView plan={plan} summary={summary} transactions={transactions} categories={categories} onAdd={openAdd} onEdit={openEdit} onViewActivity={() => setView('activity')} />}
+          {view === 'home' && <HomeView plan={plan} summary={summary} transactions={transactions} categories={categories} onAdd={openAdd} onEdit={openEdit} onViewActivity={() => setView('activity')} onMoveBudget={openTransfer} />}
           {view === 'activity' && <ActivityView transactions={transactions} categories={categories} onEdit={openEdit} />}
           {view === 'insights' && <InsightsView plan={plan} categories={summaryCategories} transactions={transactions} previousMonthTransactions={previousMonthTransactions} />}
           {view === 'settings' && <SettingsView month={month} plan={plan} categories={categories} theme={theme} onThemeChange={setTheme} />}
@@ -122,6 +128,7 @@ export function App() {
       </nav>
 
       <TransactionDialog open={dialogOpen} onOpenChange={setDialogOpen} categories={activeCategories} month={month} transaction={editingTransaction} />
+      <TransferBudgetDialog open={transferTargetId !== undefined} onOpenChange={(open) => { if (!open) setTransferTargetId(undefined); }} month={month} categories={summary.categorySummaries} targetCategoryId={transferTargetId} />
       <Toaster richColors position="top-center" closeButton />
     </div>
   );

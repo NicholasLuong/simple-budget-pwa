@@ -25,4 +25,19 @@ describe('budget summary', () => {
     expect(result.categorySummaries[0].remainingCents).toBe(-160_000);
     expect(result.pace).toBe('over');
   });
+
+  it('handles negative plan values without invalid percentages or throwing', () => {
+    const negativePlan = { ...plan, budgetCents: -10_000, allocations: { food: -5_000 } };
+    const result = summarizeBudget(negativePlan, [category], []);
+
+    expect(result.remainingCents).toBe(-10_000);
+    expect(result.usagePercent).toBe(0);
+    expect(result.categorySummaries[0]).toMatchObject({
+      allocatedCents: -5_000,
+      remainingCents: -5_000,
+      usagePercent: 0
+    });
+    expect(Number.isFinite(result.categorySummaries[0].usagePercent)).toBe(true);
+    expect(result.pace).toBe('over');
+  });
 });
