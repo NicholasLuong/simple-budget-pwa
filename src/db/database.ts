@@ -234,6 +234,8 @@ export async function getOrCreatePlan(month: string): Promise<MonthlyPlan> {
     createdAt: now,
     updatedAt: now
   };
-  await db.monthlyPlans.add(plan);
+  // Multiple live queries can request a newly available month at the same time.
+  // `put` makes creation idempotent instead of throwing on a duplicate primary key.
+  await db.monthlyPlans.put(plan);
   return plan;
 }

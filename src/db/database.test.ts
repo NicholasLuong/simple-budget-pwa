@@ -1,6 +1,6 @@
 import Dexie from 'dexie';
 import { afterEach, describe, expect, it } from 'vitest';
-import { db, initializeDatabase } from './database';
+import { db, getOrCreatePlan, initializeDatabase } from './database';
 
 afterEach(async () => {
   db.close();
@@ -38,5 +38,16 @@ describe('database initialization', () => {
     expect(transaction?.merchant).toBe('Lunch');
     expect(transaction?.categoryId).toBe(dining?.id);
     expect((await db.monthlyPlans.get('2026-08'))?.budgetCents).toBe(175_000);
+  });
+
+  it('creates the same newly available month safely when requested concurrently', async () => {
+    await initializeDatabase();
+    const [first, second] = await Promise.all([
+      getOrCreatePlan('2026-09'),
+      getOrCreatePlan('2026-09')
+    ]);
+    expect(first.month).toBe('2026-09');
+    expect(second.month).toBe('2026-09');
+    expect(await db.monthlyPlans.where('month').equals('2026-09').count()).toBe(1);
   });
 });

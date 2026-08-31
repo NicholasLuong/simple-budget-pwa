@@ -19,9 +19,6 @@ const SettingsView = lazy(() => import('./views/settings-view').then((module) =>
 const updateSW = registerSW({
   onNeedRefresh() {
     toast('An update is ready', { action: { label: 'Update', onClick: () => void updateSW(true) }, duration: Infinity });
-  },
-  onOfflineReady() {
-    toast.success('Budget Pocket is ready offline');
   }
 });
 
@@ -39,7 +36,7 @@ export function App() {
   const [theme, setTheme] = useState<'light' | 'dark'>(getInitialTheme);
   const [online, setOnline] = useState(navigator.onLine);
 
-  const plan = useLiveQuery(() => getOrCreatePlan(month), [month]);
+  const plan = useLiveQuery(() => db.monthlyPlans.get(month), [month]);
   const categories = useLiveQuery(() => db.categories.orderBy('sortOrder').toArray(), []) ?? [];
   const transactions = useLiveQuery(
     async () => (await db.transactions.where('month').equals(month).toArray()).sort((a, b) => b.date.localeCompare(a.date) || b.createdAt - a.createdAt),
@@ -55,6 +52,10 @@ export function App() {
     !category.archived || category.id in (plan?.allocations ?? {}) || transactions.some((transaction) => transaction.categoryId === category.id)
   );
   const summary = useMemo(() => plan ? summarizeBudget(plan, summaryCategories, transactions) : null, [plan, summaryCategories, transactions]);
+
+  useEffect(() => {
+    void getOrCreatePlan(month).catch(() => toast.error('This budget month could not be opened.'));
+  }, [month]);
 
   useEffect(() => {
     document.documentElement.classList.toggle('dark', theme === 'dark');
