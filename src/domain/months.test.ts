@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { monthProgress, shiftMonth } from './months';
+import { canUseTransactionDate, maxTransactionDate, monthProgress, shiftMonth } from './months';
 
 describe('month helpers', () => {
   it('moves safely across year boundaries', () => {
@@ -13,5 +13,16 @@ describe('month helpers', () => {
 
   it('does not apply pacing to historical months', () => {
     expect(monthProgress('2025-01', new Date(2026, 1, 15))).toBeNull();
+  });
+
+  it('allows transaction dates only through the end of next month', () => {
+    const now = new Date(2026, 7, 31);
+    expect(maxTransactionDate(now)).toBe('2026-09-30');
+    expect(canUseTransactionDate('2026-09-30', now)).toBe(true);
+    expect(canUseTransactionDate('2026-10-01', now)).toBe(false);
+  });
+
+  it('handles the future-date limit across a year boundary', () => {
+    expect(maxTransactionDate(new Date(2026, 11, 20))).toBe('2027-01-31');
   });
 });

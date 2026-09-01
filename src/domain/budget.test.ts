@@ -40,4 +40,9 @@ describe('budget summary', () => {
     expect(Number.isFinite(result.categorySummaries[0].usagePercent)).toBe(true);
     expect(result.pace).toBe('over');
   });
+
+  it('labels a future month as upcoming', () => {
+    const nextMonth = { ...plan, month: '2099-01' };
+    expect(summarizeBudget(nextMonth, [category], []).pace).toBe('upcoming');
+  });
 });

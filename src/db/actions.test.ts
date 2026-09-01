@@ -1,7 +1,7 @@
 import Dexie from 'dexie';
 import { afterEach, describe, expect, it } from 'vitest';
-import { monthKey } from '../domain/months';
-import { transferAllocation } from './actions';
+import { maxTransactionDate, monthFromDate, monthKey, shiftMonth } from '../domain/months';
+import { saveTransaction, transferAllocation } from './actions';
 import { db, getOrCreatePlan, initializeDatabase } from './database';
 
 afterEach(async () => {
@@ -53,5 +53,28 @@ describe('budget allocation transfers', () => {
 
     await expect(transferAllocation(month, source.id, target.id, 6_000)).rejects.toThrow('does not have enough available');
     expect((await db.monthlyPlans.get(month))?.allocations).toEqual(before.allocations);
+  });
+});
+
+describe('future transaction entry', () => {
+  it('allows next-month purchases but rejects later dates at the data boundary', async () => {
+    await initializeDatabase();
+    const category = (await db.categories.orderBy('sortOrder').first())!;
+    const latestAllowed = maxTransactionDate();
+    const tooLate = `${shiftMonth(monthFromDate(latestAllowed), 1)}-01`;
+    const input = {
+      amountCents: 2_500,
+      categoryId: category.id,
+      merchant: 'Reservation',
+      note: '',
+      date: latestAllowed
+    };
+
+    await saveTransaction(input);
+    await expect(saveTransaction({ ...input, date: tooLate })).rejects.toThrow('through the end of next month');
+
+    const saved = await db.transactions.toArray();
+    expect(saved).toHaveLength(1);
+    expect(saved[0]).toMatchObject({ date: latestAllowed, month: monthFromDate(latestAllowed) });
   });
 });

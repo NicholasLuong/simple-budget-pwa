@@ -15,6 +15,16 @@ export function shiftMonth(month: string, offset: number): string {
   return monthKey(new Date(year, index - 1 + offset, 1));
 }
 
+export function maxTransactionDate(now = new Date()): string {
+  const nextMonth = shiftMonth(monthKey(now), 1);
+  const [year, month] = nextMonth.split('-').map(Number);
+  return todayKey(new Date(year, month, 0));
+}
+
+export function canUseTransactionDate(date: string, now = new Date()): boolean {
+  return /^\d{4}-\d{2}-\d{2}$/.test(date) && date <= maxTransactionDate(now);
+}
+
 export function formatMonth(month: string): string {
   const [year, index] = month.split('-').map(Number);
   return new Intl.DateTimeFormat(undefined, { month: 'long', year: 'numeric' }).format(

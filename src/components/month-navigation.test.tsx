@@ -8,10 +8,19 @@ afterEach(() => {
 });
 
 describe('month navigation', () => {
-  it('does not allow navigation beyond the real current month', () => {
+  it('allows navigation one month beyond the real current month', () => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date(2026, 7, 31));
-    render(<MonthNavigation month="2026-08" onChange={() => undefined} />);
+    const onChange = vi.fn();
+    render(<MonthNavigation month="2026-08" onChange={onChange} />);
+    fireEvent.click(screen.getByRole('button', { name: 'Next month' }));
+    expect(onChange).toHaveBeenCalledWith('2026-09');
+  });
+
+  it('does not allow navigation more than one month ahead', () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date(2026, 7, 31));
+    render(<MonthNavigation month="2026-09" onChange={() => undefined} />);
     expect(screen.getByRole('button', { name: 'Next month' })).toBeDisabled();
   });
 

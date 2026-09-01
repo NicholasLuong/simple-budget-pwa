@@ -9,7 +9,8 @@ const paceCopy = {
   ahead: { text: 'On pace', variant: 'success' as const },
   watch: { text: 'Watch spending', variant: 'warning' as const },
   over: { text: 'Over budget', variant: 'destructive' as const },
-  complete: { text: 'Past month', variant: 'outline' as const }
+  complete: { text: 'Past month', variant: 'outline' as const },
+  upcoming: { text: 'Upcoming', variant: 'outline' as const }
 };
 
 export function BudgetSummary({ summary, budgetCents }: { summary: ReturnTypeOfSummary; budgetCents: number }) {

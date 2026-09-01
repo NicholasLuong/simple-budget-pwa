@@ -1,8 +1,9 @@
 import { db, getOrCreatePlan, type BudgetTransaction, type Category } from './database';
-import { monthFromDate } from '../domain/months';
+import { canUseTransactionDate, monthFromDate } from '../domain/months';
 import { newId } from '../lib/utils';
 
 export async function saveTransaction(input: Omit<BudgetTransaction, 'id' | 'month' | 'createdAt' | 'updatedAt'>, id?: number) {
+  if (!canUseTransactionDate(input.date)) throw new Error('Purchases can only be dated through the end of next month.');
   const now = Date.now();
   const value = { ...input, month: monthFromDate(input.date), updatedAt: now };
   if (id) {

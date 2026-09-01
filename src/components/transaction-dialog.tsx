@@ -3,7 +3,7 @@ import { toast } from 'sonner';
 import type { BudgetTransaction, Category } from '../db/database';
 import { saveTransaction } from '../db/actions';
 import { centsToInput, dollarsToCents } from '../domain/money';
-import { monthKey, todayKey } from '../domain/months';
+import { canUseTransactionDate, maxTransactionDate, monthKey, todayKey } from '../domain/months';
 import { Button } from './ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from './ui/dialog';
 import { Input, NativeSelect } from './ui/input';
@@ -40,13 +40,17 @@ export function TransactionDialog({ open, onOpenChange, categories, month, trans
       toast.error('Enter an amount and choose a category.');
       return;
     }
+    if (!canUseTransactionDate(date)) {
+      toast.error('Purchases can only be dated through the end of next month.');
+      return;
+    }
     setSaving(true);
     try {
       await saveTransaction({ amountCents, categoryId, merchant: merchant.trim(), note: note.trim(), date }, transaction?.id);
       toast.success(transaction ? 'Purchase updated' : 'Purchase recorded');
       onOpenChange(false);
-    } catch {
-      toast.error('The purchase could not be saved.');
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'The purchase could not be saved.');
     } finally {
       setSaving(false);
     }
@@ -75,7 +79,7 @@ export function TransactionDialog({ open, onOpenChange, categories, month, trans
             <Input id="transaction-merchant" maxLength={120} placeholder="Trader Joe’s" value={merchant} onChange={(event) => setMerchant(event.target.value)} />
           </div>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <div className="space-y-2"><Label htmlFor="transaction-date">Date</Label><Input id="transaction-date" type="date" value={date} onChange={(event) => setDate(event.target.value)} required /></div>
+            <div className="space-y-2"><Label htmlFor="transaction-date">Date</Label><Input id="transaction-date" type="date" max={maxTransactionDate()} value={date} onChange={(event) => setDate(event.target.value)} required /><p className="text-xs text-muted-foreground">You can plan purchases through next month.</p></div>
             <div className="space-y-2"><Label htmlFor="transaction-note">Note <span className="font-normal text-muted-foreground">(optional)</span></Label><Input id="transaction-note" maxLength={240} placeholder="Weekly groceries" value={note} onChange={(event) => setNote(event.target.value)} /></div>
           </div>
           <Button className="w-full" size="lg" type="submit" disabled={saving}>{saving ? 'Saving…' : transaction ? 'Save changes' : 'Save purchase'}</Button>

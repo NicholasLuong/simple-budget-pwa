@@ -1,5 +1,5 @@
 import type { BudgetTransaction, Category, MonthlyPlan } from '../db/database';
-import { monthProgress } from './months';
+import { monthKey, monthProgress } from './months';
 
 export interface CategorySummary {
   category: Category;
@@ -15,7 +15,7 @@ export function summarizeBudget(plan: MonthlyPlan, categories: Category[], trans
   const usagePercent = plan.budgetCents > 0 ? (spentCents / plan.budgetCents) * 100 : 0;
   const progress = monthProgress(plan.month);
 
-  let pace: 'ahead' | 'watch' | 'over' | 'complete' = 'complete';
+  let pace: 'ahead' | 'watch' | 'over' | 'complete' | 'upcoming' = plan.month > monthKey() ? 'upcoming' : 'complete';
   if (remainingCents < 0) pace = 'over';
   else if (progress) pace = usagePercent / 100 > progress.elapsedRatio + 0.08 ? 'watch' : 'ahead';
 
