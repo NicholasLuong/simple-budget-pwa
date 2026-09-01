@@ -41,7 +41,7 @@ export function TransactionDialog({ open, onOpenChange, categories, month, trans
       return;
     }
     if (!canUseTransactionDate(date)) {
-      toast.error('Purchases can only be dated through the end of next month.');
+      toast.error('Purchases can only be dated through the next three months.');
       return;
     }
     setSaving(true);
@@ -79,7 +79,7 @@ export function TransactionDialog({ open, onOpenChange, categories, month, trans
             <Input id="transaction-merchant" maxLength={120} placeholder="Trader Joe’s" value={merchant} onChange={(event) => setMerchant(event.target.value)} />
           </div>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <div className="space-y-2"><Label htmlFor="transaction-date">Date</Label><Input id="transaction-date" type="date" max={maxTransactionDate()} value={date} onChange={(event) => setDate(event.target.value)} required /><p className="text-xs text-muted-foreground">You can plan purchases through next month.</p></div>
+            <div className="space-y-2"><Label htmlFor="transaction-date">Date</Label><Input id="transaction-date" type="date" max={maxTransactionDate()} value={date} onChange={(event) => setDate(event.target.value)} required /><p className="text-xs text-muted-foreground">You can plan purchases up to three months ahead.</p></div>
             <div className="space-y-2"><Label htmlFor="transaction-note">Note <span className="font-normal text-muted-foreground">(optional)</span></Label><Input id="transaction-note" maxLength={240} placeholder="Weekly groceries" value={note} onChange={(event) => setNote(event.target.value)} /></div>
           </div>
           <Button className="w-full" size="lg" type="submit" disabled={saving}>{saving ? 'Saving…' : transaction ? 'Save changes' : 'Save purchase'}</Button>

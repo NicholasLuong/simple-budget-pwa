@@ -16,8 +16,8 @@ export function shiftMonth(month: string, offset: number): string {
 }
 
 export function maxTransactionDate(now = new Date()): string {
-  const nextMonth = shiftMonth(monthKey(now), 1);
-  const [year, month] = nextMonth.split('-').map(Number);
+  const latestMonth = shiftMonth(monthKey(now), 3);
+  const [year, month] = latestMonth.split('-').map(Number);
   return todayKey(new Date(year, month, 0));
 }
 

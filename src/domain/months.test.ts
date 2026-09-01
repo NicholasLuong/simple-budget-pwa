@@ -15,14 +15,14 @@ describe('month helpers', () => {
     expect(monthProgress('2025-01', new Date(2026, 1, 15))).toBeNull();
   });
 
-  it('allows transaction dates only through the end of next month', () => {
+  it('allows transaction dates only through the end of the third future month', () => {
     const now = new Date(2026, 7, 31);
-    expect(maxTransactionDate(now)).toBe('2026-09-30');
-    expect(canUseTransactionDate('2026-09-30', now)).toBe(true);
-    expect(canUseTransactionDate('2026-10-01', now)).toBe(false);
+    expect(maxTransactionDate(now)).toBe('2026-11-30');
+    expect(canUseTransactionDate('2026-11-30', now)).toBe(true);
+    expect(canUseTransactionDate('2026-12-01', now)).toBe(false);
   });
 
   it('handles the future-date limit across a year boundary', () => {
-    expect(maxTransactionDate(new Date(2026, 11, 20))).toBe('2027-01-31');
+    expect(maxTransactionDate(new Date(2026, 11, 20))).toBe('2027-03-31');
   });
 });

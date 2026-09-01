@@ -57,7 +57,7 @@ describe('budget allocation transfers', () => {
 });
 
 describe('future transaction entry', () => {
-  it('allows next-month purchases but rejects later dates at the data boundary', async () => {
+  it('allows purchases through the third future month but rejects later dates at the data boundary', async () => {
     await initializeDatabase();
     const category = (await db.categories.orderBy('sortOrder').first())!;
     const latestAllowed = maxTransactionDate();
@@ -71,7 +71,7 @@ describe('future transaction entry', () => {
     };
 
     await saveTransaction(input);
-    await expect(saveTransaction({ ...input, date: tooLate })).rejects.toThrow('through the end of next month');
+    await expect(saveTransaction({ ...input, date: tooLate })).rejects.toThrow('through the next three months');
 
     const saved = await db.transactions.toArray();
     expect(saved).toHaveLength(1);
